@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: pulsealert-gateway
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:pulse_admin}
+    password: ${RABBITMQ_PASS:pulse_secure2026}
+
+grpc:
+  server:
+    port: 50051

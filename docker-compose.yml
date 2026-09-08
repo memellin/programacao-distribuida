@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # 1. Mensageria
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: pulse_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: pulse_admin
+      RABBITMQ_DEFAULT_PASS: pulse_secure2026
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - pulse_net
+
+  # 2. Banco Primário
+  db-primary:
+    image: postgres:15-alpine
+    container_name: pulse_db_primary
+    environment:
+      POSTGRES_USER: db_admin
+      POSTGRES_PASSWORD: db_secure2026
+      POSTGRES_DB: pulsealert
+    ports:
+      - "5432:5432"
+    networks:
+      - pulse_net
+
+  # 3. Banco Réplica
+  db-replica:
+    image: postgres:15-alpine
+    container_name: pulse_db_replica
+    environment:
+      POSTGRES_USER: db_admin
+      POSTGRES_PASSWORD: db_secure2026
+      POSTGRES_DB: pulsealert
+    ports:
+      - "5433:5432" # Expõe externamente na 5433, mas internamente o Postgres roda na 5432
+    networks:
+      - pulse_net
+
+  # 4. Gateway (Produtor gRPC)
+  gateway:
+    build:
+      context: ./pulsealert-gateway
+    container_name: pulse_gateway
+    ports:
+      - "9090:9090"
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - pulse_net
+
+  # 5. Workers (Consumidores e Eleição)
+  worker1:
+    build:
+      context: ./pulsealert-worker
+    container_name: pulse_worker1
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - DB_HOST_PRIMARY=db-primary
+      - DB_HOST_REPLICA=db-replica
+      - WORKER_ID=1
+      - WORKER_NEXT_URL=http://worker2:8080
+    depends_on:
+      - rabbitmq
+      - db-primary
+      - db-replica
+    networks:
+      - pulse_net
+
+  worker2:
+    build:
+      context: ./pulsealert-worker
+    container_name: pulse_worker2
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - DB_HOST_PRIMARY=db-primary
+      - DB_HOST_REPLICA=db-replica
+      - WORKER_ID=2
+      - WORKER_NEXT_URL=http://worker3:8080
+    depends_on:
+      - rabbitmq
+      - db-primary
+      - db-replica
+    networks:
+      - pulse_net
+
+  worker3:
+    build:
+      context: ./pulsealert-worker
+    container_name: pulse_worker3
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - DB_HOST_PRIMARY=db-primary
+      - DB_HOST_REPLICA=db-replica
+      - WORKER_ID=3
+      - WORKER_NEXT_URL=http://worker1:8080 # Fecha o anel
+    depends_on:
+      - rabbitmq
+      - db-primary
+      - db-replica
+    networks:
+      - pulse_net
+
+networks:
+  pulse_net:
+    driver: bridge

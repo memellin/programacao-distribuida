@@ -1,0 +1,38 @@
+server:
+  port: ${CONTROL_PORT:8080}
+
+spring:
+  application:
+    name: pulsealert-worker-${WORKER_ID:1}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:pulse_admin}
+    password: ${RABBITMQ_PASS:pulse_secure2026}
+    listener:
+      simple:
+        prefetch: 1 # Competing Consumers: distribui 1 mensagem por vez
+        acknowledge-mode: manual # Exigência para o ACK/NACK explícito
+
+  datasource:
+    primary:
+      jdbc-url: jdbc:postgresql://${DB_HOST:localhost}:5432/pulsealert
+      username: ${DB_USER:db_admin}
+      password: ${DB_PASS:db_secure2026}
+      driver-class-name: org.postgresql.Driver
+    replica:
+      jdbc-url: jdbc:postgresql://${DB_HOST:localhost}:5433/pulsealert
+      username: ${DB_USER:db_admin}
+      password: ${DB_PASS:db_secure2026}
+      driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # Apenas para o desenvolvimento do protótipo
+    show-sql: false
+
+worker:
+  id: ${WORKER_ID:1}
+  next:
+    url: ${WORKER_NEXT_URL:http://localhost:8081}
