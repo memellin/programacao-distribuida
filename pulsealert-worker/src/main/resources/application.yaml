@@ -17,12 +17,12 @@ spring:
 
   datasource:
     primary:
-      jdbc-url: jdbc:postgresql://${DB_HOST:localhost}:5432/pulsealert
+      jdbc-url: jdbc:postgresql://${DB_HOST_PRIMARY:localhost}:5432/pulsealert
       username: ${DB_USER:db_admin}
       password: ${DB_PASS:db_secure2026}
       driver-class-name: org.postgresql.Driver
     replica:
-      jdbc-url: jdbc:postgresql://${DB_HOST:localhost}:5433/pulsealert
+      jdbc-url: jdbc:postgresql://${DB_HOST_REPLICA:localhost}:5432/pulsealert
       username: ${DB_USER:db_admin}
       password: ${DB_PASS:db_secure2026}
       driver-class-name: org.postgresql.Driver
