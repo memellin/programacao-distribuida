@@ -9,4 +9,4 @@ spring:
 
 grpc:
   server:
-    port: 50051
+    port: ${GRPC_SERVER_PORT:9090}

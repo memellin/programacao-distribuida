@@ -19,8 +19,8 @@ public class WorkerState {
     @Value("${worker.next.url:http://localhost:8081}")
     private String nextWorkerUrl;
 
-    private boolean isLeader = false;
-    private int currentLeaderId = -1;
+    private volatile boolean isLeader = false;
+    private volatile int currentLeaderId = -1;
 
     public WorkerState(RabbitListenerEndpointRegistry registry) {
         this.registry = registry;

@@ -11,6 +11,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - pulse_net
 
@@ -22,8 +27,15 @@ services:
       POSTGRES_USER: db_admin
       POSTGRES_PASSWORD: db_secure2026
       POSTGRES_DB: pulsealert
+    volumes:
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db_admin -d pulsealert"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - pulse_net
 
@@ -35,8 +47,15 @@ services:
       POSTGRES_USER: db_admin
       POSTGRES_PASSWORD: db_secure2026
       POSTGRES_DB: pulsealert
+    volumes:
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - "5433:5432" # Expõe externamente na 5433, mas internamente o Postgres roda na 5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U db_admin -d pulsealert"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - pulse_net
 
@@ -49,8 +68,10 @@ services:
       - "9090:9090"
     environment:
       - RABBITMQ_HOST=rabbitmq
+      - GRPC_SERVER_PORT=9090
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - pulse_net
 
@@ -61,14 +82,22 @@ services:
     container_name: pulse_worker1
     environment:
       - RABBITMQ_HOST=rabbitmq
-      - DB_HOST_PRIMARY=db-primary
-      - DB_HOST_REPLICA=db-replica
+      - DB_HOST=db-primary
       - WORKER_ID=1
       - WORKER_NEXT_URL=http://worker2:8080
+      - SPRING_DATASOURCE_PRIMARY_JDBC_URL=jdbc:postgresql://db-primary:5432/pulsealert
+      - SPRING_DATASOURCE_PRIMARY_USERNAME=db_admin
+      - SPRING_DATASOURCE_PRIMARY_PASSWORD=db_secure2026
+      - SPRING_DATASOURCE_REPLICA_JDBC_URL=jdbc:postgresql://db-replica:5432/pulsealert
+      - SPRING_DATASOURCE_REPLICA_USERNAME=db_admin
+      - SPRING_DATASOURCE_REPLICA_PASSWORD=db_secure2026
     depends_on:
-      - rabbitmq
-      - db-primary
-      - db-replica
+      rabbitmq:
+        condition: service_healthy
+      db-primary:
+        condition: service_healthy
+      db-replica:
+        condition: service_healthy
     networks:
       - pulse_net
 
@@ -78,14 +107,22 @@ services:
     container_name: pulse_worker2
     environment:
       - RABBITMQ_HOST=rabbitmq
-      - DB_HOST_PRIMARY=db-primary
-      - DB_HOST_REPLICA=db-replica
+      - DB_HOST=db-primary
       - WORKER_ID=2
       - WORKER_NEXT_URL=http://worker3:8080
+      - SPRING_DATASOURCE_PRIMARY_JDBC_URL=jdbc:postgresql://db-primary:5432/pulsealert
+      - SPRING_DATASOURCE_PRIMARY_USERNAME=db_admin
+      - SPRING_DATASOURCE_PRIMARY_PASSWORD=db_secure2026
+      - SPRING_DATASOURCE_REPLICA_JDBC_URL=jdbc:postgresql://db-replica:5432/pulsealert
+      - SPRING_DATASOURCE_REPLICA_USERNAME=db_admin
+      - SPRING_DATASOURCE_REPLICA_PASSWORD=db_secure2026
     depends_on:
-      - rabbitmq
-      - db-primary
-      - db-replica
+      rabbitmq:
+        condition: service_healthy
+      db-primary:
+        condition: service_healthy
+      db-replica:
+        condition: service_healthy
     networks:
       - pulse_net
 
@@ -95,14 +132,22 @@ services:
     container_name: pulse_worker3
     environment:
       - RABBITMQ_HOST=rabbitmq
-      - DB_HOST_PRIMARY=db-primary
-      - DB_HOST_REPLICA=db-replica
+      - DB_HOST=db-primary
       - WORKER_ID=3
       - WORKER_NEXT_URL=http://worker1:8080 # Fecha o anel
+      - SPRING_DATASOURCE_PRIMARY_JDBC_URL=jdbc:postgresql://db-primary:5432/pulsealert
+      - SPRING_DATASOURCE_PRIMARY_USERNAME=db_admin
+      - SPRING_DATASOURCE_PRIMARY_PASSWORD=db_secure2026
+      - SPRING_DATASOURCE_REPLICA_JDBC_URL=jdbc:postgresql://db-replica:5432/pulsealert
+      - SPRING_DATASOURCE_REPLICA_USERNAME=db_admin
+      - SPRING_DATASOURCE_REPLICA_PASSWORD=db_secure2026
     depends_on:
-      - rabbitmq
-      - db-primary
-      - db-replica
+      rabbitmq:
+        condition: service_healthy
+      db-primary:
+        condition: service_healthy
+      db-replica:
+        condition: service_healthy
     networks:
       - pulse_net
 

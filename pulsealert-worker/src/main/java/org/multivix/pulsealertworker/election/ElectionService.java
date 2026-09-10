@@ -65,9 +65,7 @@ public class ElectionService {
     }
 
     private String resolveWorkerUrl(int id) {
-        // Como você está testando localmente na sua máquina antes de mandar para o Docker,
-        // vamos deduzir a porta com base no ID (Worker 1 = 8080, Worker 2 = 8081, etc.)
-        int port = 8080 + (id - 1);
-        return "http://localhost:" + port;
+        // Usa o nome do serviço Docker para comunicação entre contêineres na rede pulse_net
+        return "http://worker" + id + ":8080";
     }
 }
