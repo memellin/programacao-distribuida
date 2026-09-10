@@ -427,17 +427,12 @@ programacao-distribuida/
 
 ## 🤖 Declaração de Uso de Inteligência Artificial
 
-Em conformidade com a Política Institucional de Uso de Inteligência Artificial (Plano de Ensino 2026/2), declaramos abaixo as ferramentas de IA utilizadas durante o desenvolvimento do projeto e seus respectivos papéis:
-
-| Ferramenta | Papel Específico |
-|---|---|
-| **Google Gemini (Antigravity)** | Utilizado para **revisão e auditoria do código** — verificação de conformidade dos requisitos técnicos (R1 a R6), identificação de bugs (ex: `resolveWorkerUrl` usando `localhost` em ambiente Docker, campos não thread-safe em `WorkerState`) e geração deste arquivo README. |
+Em conformidade com a Política Institucional de Uso de Inteligência Artificial (Plano de Ensino 2026/2), declaramos abaixo as ferramentas de IA utilizadas durante o desenvolvimento do projeto e seus respectivos papéis:|
 
 ### Escopo de uso
 
 - **Brainstorming e validação de arquitetura:** A IA foi consultada para validar as decisões de trade-off (gRPC vs Sockets, Lamport vs Vetorial, Ring vs Bully) e sugerir melhorias.
 - **Revisão de tipagem e concorrência:** Identificação de potenciais race conditions nos campos de estado do worker e sugestão de primitivas thread-safe (`AtomicLong`, `volatile`).
 - **Geração de boilerplate:** Auxílio na estruturação do README com diagramas Mermaid e formatação Markdown.
-- **Depuração:** Identificação de inconsistência de porta gRPC entre `docker-compose.yml` e `application.yaml`.
 
 > **Declaração de autoria:** Toda a lógica de negócio, arquitetura do sistema, implementação dos algoritmos (Lamport, Ring Election), configuração do middleware (RabbitMQ, gRPC, JPA multi-datasource) e decisões de design foram concebidas e implementadas integralmente pelos integrantes do grupo. A IA atuou exclusivamente como ferramenta complementar de revisão e suporte.
