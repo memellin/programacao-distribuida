@@ -2,12 +2,12 @@
 
 ## 👥 Integrantes
 
-| Nome Completo | Matrícula |
-|---|---|
-| Enock De Oliveira Memelli Junior | 6-2211755 |
-| Felipe Sabino | <!-- PREENCHER --> |
-| Samuel Mota | <!-- PREENCHER --> |
-| Pedro Muchelin | <!-- PREENCHER --> |
+| Nome Completo |
+|---|
+| Enock De Oliveira Memelli Junior | 
+| Felipe Sabino | 
+| Samuel Mota |
+| Pedro Muchelin |
 
 ---
 
